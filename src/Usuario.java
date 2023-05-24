@@ -29,4 +29,12 @@ public abstract class Usuario {
     public String getDocumento(){
         return documento;
     }
+
+    public String getProfilePath(){
+        return profileImg;
+    }
+
+    public void setProfilePath(String profilePath){
+        this.profileImg = profilePath;
+    }
 }

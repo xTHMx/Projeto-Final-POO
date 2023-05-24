@@ -3,7 +3,7 @@ import javax.imageio.ImageIO;
 /**
  * Classe abstrata que representa os items
  */
-public abstract class Item {
+public abstract class Item implements Compravel {
     private String nome;
     private float preco;
     private int codigo;
@@ -23,6 +23,10 @@ public abstract class Item {
         this.codigo = codigo;
         this.tipo = tipo;
         this.imgPath = imgPath;
+    }
+
+    public void addToCarrinho(Cliente cli,int quantidade){
+        
     }
 
     /**

@@ -28,28 +28,47 @@ public class Pedidos {
      * @param item Item do pedido
      * @param quantidade Quantidade desse item no pedido
      */
-    public void addItem(Item item, int quantidade){
-        for(int i = 0; i < quantidade; i++)
-            itens.add(item);
-        valorTotal += item.getPreco() * quantidade;
+    public void addItem(Item item){
+        itens.add(item);
+        valorTotal += item.getPreco();
     }
 
+    /**
+     * Retorna o numero do pedido
+     * @return Numero do Pedido
+     */
     public int getNumeroPedido(){
         return numeroPedido;
     }
 
+    /**
+     * Retorna o valor total do pedido
+     * @return Valor Total
+     */
     public float getValorTotal(){
         return valorTotal;
     }
 
+    /**
+     * Retorna o nome do restaurante que realizou o pedido
+     * @return Nome do Restaurante
+     */
     public String getRestaurante(){
         return restaurante;
     }
 
+    /**
+     * Retorna o nome do cliente que fez o pedido
+     * @return Nome do Cliente
+     */
     public String getCliente(){
         return cliente;
     }
 
+    /**
+     * Retorna a instacia Date da data do pedido
+     * @return Instacia Date da data
+     */
     public Date getDataPedido(){
         return dataPedido;
     }

@@ -24,6 +24,12 @@ public class Bebida extends Item {
         this.volume = volume;
     }
 
+    @Override
+    public void addToCarrinho(Cliente cli,int quantidade){
+
+    }
+
+
     /**
      * Retorna se a bebida é alcoolica
      * @return Bebida é alcoolica?
