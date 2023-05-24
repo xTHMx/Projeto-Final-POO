@@ -17,6 +17,12 @@ public class Sobremesa extends Item {
         this.isGelada = isGelada;
         this.isSemAçucar = isSemAçucar;
     }
+
+    @Override
+    public void addToCarrinho(Cliente cli,int quantidade){
+        
+    }
+
     
     /**
      * Retorna se a sobremesa é gelada

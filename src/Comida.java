@@ -24,6 +24,11 @@ public class Comida extends Item {
         this.isVegetariano = isVegetariano;
     }
 
+    @Override
+    public void addToCarrinho(Cliente cli,int quantidade){
+
+    }
+
     /**
      * Retorna o numero de pessoas que a comida serve
      * @return Numero de pessoas
