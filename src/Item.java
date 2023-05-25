@@ -1,9 +1,9 @@
-import javax.imageio.ImageIO;
+import java.util.List;
 
 /**
  * Classe abstrata que representa os items
  */
-public abstract class Item implements Compravel {
+public abstract class Item extends Pesquisavel implements Compravel {
     private String nome;
     private float preco;
     private int codigo;
@@ -25,8 +25,20 @@ public abstract class Item implements Compravel {
         this.imgPath = imgPath;
     }
 
+    @Override
     public void addToCarrinho(Cliente cli,int quantidade){
-        
+        List<Item> carrinho = cli.getCarrinho();
+        carrinho.add(this);
+    }
+    
+    @Override
+    public int getCodigo(){
+        return codigo;
+    }
+
+    @Override
+    public String getNome(){
+        return nome;
     }
 
     /**
@@ -38,27 +50,11 @@ public abstract class Item implements Compravel {
     }
 
     /**
-     * Funçao que retorna o nome do item
-     * @return Nome do item
-     */
-    public String getNome(){
-        return nome;
-    }
-
-    /**
      * Funçao que retorna o preco do item
      * @return Preco do item
      */
     public float getPreco(){
         return preco;
-    }
-
-    /**
-     * Funçao que retorna o codigo do item
-     * @return Codigo do item
-     */
-    public int getCodigo(){
-        return codigo;
     }
 
     /**
@@ -75,22 +71,6 @@ public abstract class Item implements Compravel {
      */
     public String getImgPath(){
         return imgPath;
-    }
-
-    /**
-     * Retorna a quantidade daquele item no pedido
-     * @return Quantidade daquele item no pedido
-     */
-    public int getQuantidade(){
-        return quantidade;
-    }
-
-    /**
-     * Define a quantidade daquele item para usar no pedido
-     * @param quantidade Quantidade do item no pedido
-     */
-    public void setQuantidade(int quantidade){
-        this.quantidade = quantidade;
     }
 
 }

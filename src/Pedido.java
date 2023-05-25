@@ -5,18 +5,20 @@ import java.util.List;
 /**
  * Classe que mantem os dados de todos os pedidos, armazena em ambos os lados
  */
-public class Pedidos {
+public class Pedido {
     private List<Item> itens = new ArrayList<>();
     private int numeroPedido;
     private float valorTotal;
+    private String status; //aguardando confirm, preparo, em rota, entregue, cancelado;
     private String restaurante;
     private String cliente;
     private Date dataPedido;
 
-    public Pedidos(int numeroPedido, String restaurante, String cliente, String dataPedido){
+    public Pedido(int numeroPedido, String restaurante, String cliente, String dataPedido){
         this.numeroPedido = numeroPedido;
         this.restaurante = restaurante;
         this.cliente = cliente;
+        status = "Aguardando Confirmação";
         valorTotal = 0f;
         
         String[] data = dataPedido.split("/");
@@ -71,6 +73,22 @@ public class Pedidos {
      */
     public Date getDataPedido(){
         return dataPedido;
+    }
+
+    /**
+     * Retorna o status do Pedido
+     * @return Status do Pedido
+     */
+    public String getStatus(){
+        return status;
+    }
+
+    /**
+     * Altera o status do Pedido
+     * @param novoStatus Novo status do Pedido
+     */
+    public void setStatus(String novoStatus){
+        this.status = novoStatus;
     }
 
 
