@@ -1,9 +1,11 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 /**
@@ -14,23 +16,31 @@ public class Delivery {
     private List<Cliente> clientes = new ArrayList<>();
     private List<Item> itens = new ArrayList<>();
     private Usuario contaLogada;
+    private String itemPath;
+    private String usuarioPath;
 
-    public Delivery(){ //inicializa dados
+    /**
+     * Inicializa os dados do Delivery
+     */
+    public Delivery(String itemPath, String usuarioPath){ //inicializa dados
         BufferedReader bfread = null;
         String line;
         String[] splitted;
+
         contaLogada = null; //necessita de procedimento de login atraves da iterface
+        this.itemPath = itemPath;
+        this.usuarioPath = usuarioPath;
 
         //carrega items cadastrados
         try{
-            bfread = new BufferedReader(new FileReader("../items.dat"));
+            bfread = new BufferedReader(new FileReader(itemPath));
 
             while((line = bfread.readLine()) != null){
                 splitted = line.split("#");
 
-                if(splitted[0] == "Comida"){
+                if(splitted[0] == "Comida"){ //qual o tipo de item
                     itens.add(new Comida(
-                        splitted[1],Float.parseFloat(splitted[2]),Integer.parseInt(splitted[3]),splitted[4],splitted[5],
+                        splitted[1],Float.parseFloat(splitted[2]),Integer.parseInt(splitted[3]),splitted[4],splitted[5], //valores separados por #
                         Integer.parseInt(splitted[6]),splitted[7],Boolean.parseBoolean(splitted[8]),Boolean.parseBoolean(splitted[9]),Boolean.parseBoolean(splitted[10])
                     ));
 
@@ -44,8 +54,14 @@ public class Delivery {
 
             bfread.close();
 
-        }catch(FileNotFoundException e){
-            File out = new File("../items.dat");
+        }catch(FileNotFoundException e){ //se nao houver arquivo
+            File out = new File(itemPath);
+            try{
+               out.createNewFile();
+            }catch(IOException f){
+                System.out.println("Não foi possivel criar arquivo " + f.getMessage());
+            }
+            
         }catch(IOException e){
             System.out.println("Erro ao abrir arquivo " + e.getMessage());
         }
@@ -53,28 +69,33 @@ public class Delivery {
         //Carrega usuarios
         try{
 
-            bfread = new BufferedReader(new FileReader("../usuarios.dat"));
+            bfread = new BufferedReader(new FileReader(usuarioPath)); 
 
-            while((line = bfread.readLine()) != null){
-                splitted = line.split("#");
-
-                if(splitted[0] == "Cliente"){
-                    clientes.add();
+            while((line = bfread.readLine()) != null){ 
+                splitted = line.split("#");  
+ 
+                if(splitted[0] == "Cliente"){ //qual o tipo de usuario
+                    clientes.add(new Cliente(splitted[1], splitted[2], Integer.parseInt(splitted[3]), splitted[4], splitted[5]));
 
                 }else{
-                    restaurantes.add();
+                    restaurantes.add(new Restaurante(splitted[1], splitted[2], Integer.parseInt(splitted[3]), splitted[4], splitted[5]));
 
                 }
             }
 
             bfread.close();
 
-        }catch(FileNotFoundException e){
-            File out = new File("../items.dat");
+        }catch(FileNotFoundException e){  //arquivo não existe
+            File out = new File(usuarioPath);
+            try{
+               out.createNewFile();
+            }catch(IOException f){
+                System.out.println("Não foi possivel criar arquivo " + f.getMessage());
+            }
+            
         }catch(IOException e){
             System.out.println("Erro ao abrir arquivo " + e.getMessage());
         }
-
     }
 
 
@@ -141,12 +162,24 @@ public class Delivery {
     public void cadastraComida(String nome, float preco, int codigo, String tipo, String imgPath, int serveQ, String tamanho,
      boolean isVegetariano,boolean isGelado,boolean isSemAcucar){
         Restaurante res = (Restaurante) contaLogada;
+        BufferedWriter bfWriter = null;
         Comida comida = new Comida(nome, preco, codigo, tipo, imgPath, serveQ, tamanho, isVegetariano, isGelado, isSemAcucar);
 
         itens.add(comida);
         res.getListaItem().add(comida);
 
         //salvar no arquivo
+        try{
+            bfWriter = new BufferedWriter(new FileWriter(itemPath,true)); //true é para append
+            
+            bfWriter.write("Produto#"+ nome + "#" + preco + "#" + codigo + "#" + tipo + "#" + imgPath + "#" +
+                                             serveQ + "#" + tamanho + "#" + isVegetariano + "#" + isGelado + "#" + isSemAcucar);
+            bfWriter.newLine(); //pula a linha atual
+            bfWriter.close();
+
+        }catch(IOException e){
+            System.out.println("Erro ao escrever arquivo" + e.getMessage());
+        }
     }
 
     /**
@@ -161,19 +194,73 @@ public class Delivery {
     public void cadastraProduto(String nome, float preco, int codigo, String tipo, String imgPath, String marca){
         Restaurante res = (Restaurante) contaLogada;
         Produto produto = new Produto(nome, preco, codigo, tipo, imgPath, marca);
+        BufferedWriter bfWriter = null;
 
         itens.add(produto);
         res.getListaItem().add(produto);
 
         //salvar no arquivo
+        try{
+            bfWriter = new BufferedWriter(new FileWriter(itemPath,true)); //true é para append
+            
+            bfWriter.write("Produto#"+ nome + "#" + preco + "#" + codigo + "#" + tipo + "#" + imgPath + "#" + marca);
+            bfWriter.newLine(); //pula a linha atual
+            bfWriter.close();
+
+        }catch(IOException e){
+            System.out.println("Erro ao escrever arquivo" + e.getMessage());
+        }
+        
+        
     }
 
-    public void cadastraRestaurante(){
+    /**
+     * Cadastra os dados de um Restaurante e armazena em um arquivo
+     * @param nomeUsuario
+     * @param senha
+     * @param codigo
+     * @param profileImg
+     * @param cnpj
+     */
+    public void cadastraRestaurante(String nomeUsuario, String senha, int codigo, String profileImg, String cnpj){
+        BufferedWriter bfWriter = null;
 
+        restaurantes.add(new Restaurante(nomeUsuario, senha, codigo, profileImg, cnpj));
+
+        //adiciona no arquivo
+        try{
+            bfWriter = new BufferedWriter(new FileWriter(usuarioPath,true)); //true é para append
+            
+            bfWriter.write("Produto#"+ nomeUsuario + "#" + senha + "#" + codigo + "#" + cnpj + "#" + profileImg);
+            bfWriter.newLine(); //pula a linha atual
+            bfWriter.close();
+
+        }catch(IOException e){
+            System.out.println("Erro ao escrever arquivo" + e.getMessage());
+        }
     }
 
-    public void cadastraCliente(){
+    /**
+     * Cadastra os dados de um Cliente e armazena em um arquivo
+     * @param nomeUsuario Usuario do cliente
+     * @param senha Senha do cliente
+     * @param codigo Codigo do Cliente
+     * @param documento Documento do cliente
+     * @param profileImg Local da Imagem do cliente
+     */
+    public void cadastraCliente(String nomeUsuario, String senha, int codigo, String cpf, String profileImg){
+        BufferedWriter bfWriter = null;
 
+        try{
+            bfWriter = new BufferedWriter(new FileWriter(usuarioPath,true)); //true é para append
+            
+            bfWriter.write("Produto#"+ nomeUsuario + "#" + senha + "#" + codigo + "#" + cpf + "#" + profileImg);
+            bfWriter.newLine(); //pula a linha atual
+            bfWriter.close();
+
+        }catch(IOException e){
+            System.out.println("Erro ao escrever arquivo" + e.getMessage());
+        }     
     }
 
     /**

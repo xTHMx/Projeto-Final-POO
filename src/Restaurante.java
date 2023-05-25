@@ -10,7 +10,8 @@ public class Restaurante extends Usuario{
     private List<Item> itens = new ArrayList<>();
     private int[] codigoItemsCadastrados;
 
-    public Restaurante(String nomeUsuario, String senha, int codigo, String profileImg, String cnpj){
+    
+    public Restaurante(String nomeUsuario, String senha, int codigo, String cnpj, String profileImg){
         super(nomeUsuario, senha, codigo, profileImg);
         this.cnpj = cnpj;
         
