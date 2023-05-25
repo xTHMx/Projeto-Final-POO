@@ -85,15 +85,15 @@ public class Delivery {
                 List<Item> pedidosItens = new ArrayList<>();
                 Pedido pedidoTemp;
 
-                scan = new Scanner(splitted[0]);
+                scan = new Scanner(splitted[4]);
                 subLine = scan.nextLine();
                 codes = subLine.split(",");
 
                 for(i = 0; i < codes.length -1; i++){
-                    pedidosItens.add(busca(codes[0], itens));
+                    pedidosItens.add(busca(codes[i], itens));
                 }
 
-                pedidoTemp = new Pedido(Integer.parseInt(splitted[1]),splitted[2],splitted[3],splitted[4]);
+                pedidoTemp = new Pedido(Integer.parseInt(splitted[0]),splitted[1],splitted[2],splitted[3]);
                 pedidoTemp.setListaItem(pedidosItens);
                 
                 pedidos.add(pedidoTemp);
@@ -127,13 +127,33 @@ public class Delivery {
                     Cliente cli = new Cliente(splitted[1], splitted[2], Integer.parseInt(splitted[3]), splitted[4], splitted[5]);
                     clientes.add(cli);
                     
-                    //readiciona pedidos
+                    //readiciona pedidos //splitted6
+                    String[] codes;
+                    String subLine;
+
+                    scan = new Scanner(splitted[6]);
+                    subLine = scan.nextLine();
+                    codes = subLine.split(",");
+
+                    for(i = 0; i < codes.length -1; i++){
+                        cli.getPedidos().add(busca(codes[i], pedidos));
+                    }
 
                 }else{
                     Restaurante res = new Restaurante(splitted[1], splitted[2], Integer.parseInt(splitted[3]), splitted[4], splitted[5]);
                     restaurantes.add(res);
 
                     //readiciona pedidos
+                    String[] codes;
+                    String subLine;
+
+                    scan = new Scanner(splitted[6]);
+                    subLine = scan.nextLine();
+                    codes = subLine.split(",");
+
+                    for(i = 0; i < codes.length -1; i++){
+                        res.getPedidos().add(busca(codes[i], pedidos));
+                    }
 
                 }
             }
@@ -236,6 +256,10 @@ public class Delivery {
      boolean isVegetariano,boolean isGelado,boolean isSemAcucar){
         Restaurante res = (Restaurante) contaLogada;
         BufferedWriter bfWriter = null;
+        BufferedReader bfReader = null;
+        String line;
+        String[] split;
+        boolean found = false;
         Comida comida = new Comida(nome, preco, codigo, tipo, imgPath, serveQ, tamanho, isVegetariano, isGelado, isSemAcucar);
 
         itens.add(comida);
@@ -250,6 +274,18 @@ public class Delivery {
                                              serveQ + "#" + tamanho + "#" + isVegetariano + "#" + isGelado + "#" + isSemAcucar);
             bfWriter.newLine(); //pula a linha atual
             bfWriter.close();
+
+            //adiciona codigo ao res no arquivo
+            FileReader fr = new FileReader(usuarioPath);  //melhor usar uma função para salvar tudo
+            
+            bfReader = new BufferedReader(fr);
+            while((line = bfReader.readLine()) != null && !found){
+                split = line.split("#");
+                if(Integer.parseInt(split[3]) == res.getCodigo()){ //é o nosso restaurante
+                    FileWriter fw = new FileWriter(usuarioPath,true);
+
+                }   
+            }
 
         }catch(IOException e){
             System.out.println("Erro ao escrever arquivo" + e.getMessage());
@@ -339,7 +375,7 @@ public class Delivery {
     }
 
     /**
-     * 
+     * Funçao que reazliza o pedido e salva ele depois
      * @param numeroPedido
      * @param restaurante
      * @param dataPedido
@@ -351,9 +387,9 @@ public class Delivery {
     }
 
     /**
-     * 
-     * @param item
-     * @param quantidade
+     * Função que adiciona item ao carrinho quando usada pelocliente
+     * @param item Item a ser inserido
+     * @param quantidade Quantos item a ser inserido
      */
     public void addItemNoCarrinho(Item item, int quantidade){
         Cliente cli = (Cliente) contaLogada;
@@ -404,4 +440,11 @@ public class Delivery {
         return false; //nao funcionou
     }
 
+    /**
+     * Função acionada quando fechar o programa
+     * Salvara todos os dados nos arquivos
+     */
+    public void fechaPrograma(){
+
+    }
 }

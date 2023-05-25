@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Classe que mantem os dados de todos os pedidos, armazena em ambos os lados
  */
-public class Pedido {
+public class Pedido extends Pesquisavel{
     private List<Item> itens = new ArrayList<>();
     private int[] codigoItens;
     private int numeroPedido;
@@ -41,7 +41,8 @@ public class Pedido {
      * Retorna o numero do pedido
      * @return Numero do Pedido
      */
-    public int getNumeroPedido(){
+    @Override
+    public int getCodigo(){
         return numeroPedido;
     }
 
