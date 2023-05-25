@@ -12,6 +12,7 @@ public class Cliente extends Usuario {
      * Constructor da classe Cliente
      * @param nomeUsuario Usuario do cliente
      * @param senha Senha do cliente
+     * @param codigo Codigo do Cliente
      * @param documento Documento do cliente
      * @param profileImg Local da Imagem do cliente
      */
