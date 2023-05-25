@@ -7,6 +7,7 @@ import java.util.List;
  */
 public class Pedido {
     private List<Item> itens = new ArrayList<>();
+    private int[] codigoItens;
     private int numeroPedido;
     private float valorTotal;
     private String status; //aguardando confirm, preparo, em rota, entregue, cancelado;
@@ -32,6 +33,7 @@ public class Pedido {
      */
     public void addItem(Item item){
         itens.add(item);
+        codigoItens[codigoItens.length-1] = item.getCodigo();
         valorTotal += item.getPreco();
     }
 
@@ -89,6 +91,14 @@ public class Pedido {
      */
     public void setStatus(String novoStatus){
         this.status = novoStatus;
+    }
+
+    /**
+     * Substitui uma lista na variavel da lista de itens
+     * @param listaItem Lista de itens
+     */
+    public void setListaItem(List<Item> listaItem){
+        this.itens = listaItem;
     }
 
 

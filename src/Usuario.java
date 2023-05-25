@@ -9,6 +9,7 @@ public abstract class Usuario extends Pesquisavel {
     private String senha;
     private int codigoUsuario;
     private String profileImg;
+    private int[] numeroDosPedidos;
     private List<Pedido> pedidos = new ArrayList<>();
 
     /**
@@ -63,6 +64,14 @@ public abstract class Usuario extends Pesquisavel {
      */
     public void setProfilePath(String profilePath){
         this.profileImg = profilePath;
+    }
+
+    /**
+     * Retorna um array com os codigos dos pedidos para reinserçao
+     * @return Array de Codigos
+     */
+    public int[] getNumeroDosPedidos(){
+        return numeroDosPedidos;
     }
 
     /**

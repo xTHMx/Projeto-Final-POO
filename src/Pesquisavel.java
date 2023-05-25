@@ -15,4 +15,12 @@ public abstract class Pesquisavel {
         return null;
     }
 
+    /**
+     * Retorna se o tipo da bebida
+     * @return Tipo da bebida
+     */
+    public String getTipo(){
+        return null;
+    }
+
 }

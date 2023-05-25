@@ -1,5 +1,8 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -15,15 +18,19 @@ public class Delivery {
     private List<Restaurante> restaurantes = new ArrayList<>();
     private List<Cliente> clientes = new ArrayList<>();
     private List<Item> itens = new ArrayList<>();
+    private List<Pedido> pedidos = new ArrayList<>();
     private Usuario contaLogada;
     private String itemPath;
     private String usuarioPath;
+    private String pedidosPath;
 
     /**
      * Inicializa os dados do Delivery
      */
-    public Delivery(String itemPath, String usuarioPath){ //inicializa dados
+    public Delivery(String itemPath, String usuarioPath, String pedidosPath){ //inicializa dados
         BufferedReader bfread = null;
+        Scanner scan = null;
+        int i;
         String line;
         String[] splitted;
 
@@ -66,6 +73,48 @@ public class Delivery {
             System.out.println("Erro ao abrir arquivo " + e.getMessage());
         }
 
+        //carrega pedidos
+        try{
+            bfread = new BufferedReader(new FileReader(pedidosPath));
+
+            while((line = bfread.readLine()) != null){
+                splitted = line.split("#"); 
+
+                String[] codes;
+                String subLine;
+                List<Item> pedidosItens = new ArrayList<>();
+                Pedido pedidoTemp;
+
+                scan = new Scanner(splitted[0]);
+                subLine = scan.nextLine();
+                codes = subLine.split(",");
+
+                for(i = 0; i < codes.length -1; i++){
+                    pedidosItens.add(busca(codes[0], itens));
+                }
+
+                pedidoTemp = new Pedido(Integer.parseInt(splitted[1]),splitted[2],splitted[3],splitted[4]);
+                pedidoTemp.setListaItem(pedidosItens);
+                
+                pedidos.add(pedidoTemp);
+
+
+            }
+
+            bfread.close();
+
+        }catch(FileNotFoundException e){ //se nao houver arquivo
+            File out = new File(pedidosPath);
+            try{
+               out.createNewFile();
+            }catch(IOException f){
+                System.out.println("Não foi possivel criar arquivo " + f.getMessage());
+            }
+            
+        }catch(IOException e){
+            System.out.println("Erro ao abrir arquivo " + e.getMessage());
+        }
+
         //Carrega usuarios
         try{
 
@@ -75,10 +124,16 @@ public class Delivery {
                 splitted = line.split("#");  
  
                 if(splitted[0] == "Cliente"){ //qual o tipo de usuario
-                    clientes.add(new Cliente(splitted[1], splitted[2], Integer.parseInt(splitted[3]), splitted[4], splitted[5]));
+                    Cliente cli = new Cliente(splitted[1], splitted[2], Integer.parseInt(splitted[3]), splitted[4], splitted[5]);
+                    clientes.add(cli);
+                    
+                    //readiciona pedidos
 
                 }else{
-                    restaurantes.add(new Restaurante(splitted[1], splitted[2], Integer.parseInt(splitted[3]), splitted[4], splitted[5]));
+                    Restaurante res = new Restaurante(splitted[1], splitted[2], Integer.parseInt(splitted[3]), splitted[4], splitted[5]);
+                    restaurantes.add(res);
+
+                    //readiciona pedidos
 
                 }
             }
@@ -141,8 +196,26 @@ public class Delivery {
 
     }
 
-    public <T extends Pesquisavel> List<T> pesquisa(String nome, List<T> lista){ //temp
-        return null;
+
+    /**
+     * Função que pesquisa parte a parte por palavras numa lista
+     * O filtro não é cumulativo na função, mas como retorna uma lista nova pode ser usada com outro filtro
+     * @param <T> Classe da lista a ser pesquisada
+     * @param classe Classe do Item para identificar, ex: Item i, Cliente c , não necessita estar instanciado
+     * @param chars caracteres de busca
+     * @param filtro Filtro de pesquisa -> tipo de item
+     * @param lista Lista onde sera procurado a Classe
+     * @return Retorna um lista filtrada
+     */
+    public <T extends Pesquisavel> List<T> pesquisa(T classe, String chars, String filtro, List<T> lista){ //temp
+
+        if(classe instanceof Item)
+            lista = lista.stream().filter(s -> s.getTipo().contains(filtro)).collect(Collectors.toList());
+
+                                //filtro
+        lista = lista.stream().filter(s -> s.getNome().contains(chars)).collect(Collectors.toList());
+
+        return lista;
     }
 
 
@@ -167,6 +240,7 @@ public class Delivery {
 
         itens.add(comida);
         res.getListaItem().add(comida);
+        res.addCodigoItem(codigo);
 
         //salvar no arquivo
         try{
@@ -198,6 +272,7 @@ public class Delivery {
 
         itens.add(produto);
         res.getListaItem().add(produto);
+        res.addCodigoItem(codigo);
 
         //salvar no arquivo
         try{

@@ -32,6 +32,22 @@ public class Restaurante extends Usuario{
     }
 
     /**
+     * Retorna a lista de itens cadastrados para salvar
+     * @return Lista de codigos
+     */
+    public int[] getCodigosCadastrados(){
+        return codigoItemsCadastrados;
+    }
+
+    /**
+     * Adiciona dinamicamente um codigo de um item
+     * @param codigoItem Codigo do Item
+     */
+    public void addCodigoItem(int codigoItem){
+        codigoItemsCadastrados[codigoItemsCadastrados.length-1] = codigoItem;
+    }
+
+    /**
      * Retorna a lista de items cadastrados
      * @return Lista de Itens
      */

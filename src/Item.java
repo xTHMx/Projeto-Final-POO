@@ -57,10 +57,7 @@ public abstract class Item extends Pesquisavel implements Compravel {
         return preco;
     }
 
-    /**
-     * Retorna se o tipo da bebida
-     * @return Tipo da bebida
-     */
+    @Override
     public String getTipo(){
         return tipo;
     }
