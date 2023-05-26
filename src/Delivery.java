@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -37,27 +36,30 @@ public class Delivery {
         contaLogada = null; //necessita de procedimento de login atraves da iterface
         this.itemPath = itemPath;
         this.usuarioPath = usuarioPath;
+        this.pedidosPath = pedidosPath;
 
         //carrega items cadastrados
         try{
             bfread = new BufferedReader(new FileReader(itemPath));
 
-            while((line = bfread.readLine()) != null){
+            while((line = bfread.readLine()) != null ){
                 splitted = line.split("#");
 
-                if(splitted[0] == "Comida"){ //qual o tipo de item
-                    itens.add(new Comida(
-                        splitted[1],Float.parseFloat(splitted[2]),Integer.parseInt(splitted[3]),splitted[4],splitted[5], //valores separados por #
-                        Integer.parseInt(splitted[6]),splitted[7],Boolean.parseBoolean(splitted[8]),Boolean.parseBoolean(splitted[9]),Boolean.parseBoolean(splitted[10])
-                    ));
+                    if(splitted[0].equals("Comida")){ //qual o tipo de item
+                        itens.add(new Comida(
+                            splitted[1],Float.parseFloat(splitted[2]),Integer.parseInt(splitted[3]),splitted[4],splitted[5], //valores separados por #
+                            Integer.parseInt(splitted[6]),splitted[7],Boolean.parseBoolean(splitted[8]),Boolean.parseBoolean(splitted[9]),Boolean.parseBoolean(splitted[10])
+                        ));
 
-                }else{
-                    itens.add(new Produto(
-                        splitted[1],Float.parseFloat(splitted[2]),Integer.parseInt(splitted[3]),splitted[4],splitted[5],splitted[6]
-                    ));
+                    }else if(splitted[0].equals("Produto")){
+                        itens.add(new Produto(
+                            splitted[1],Float.parseFloat(splitted[2]),Integer.parseInt(splitted[3]),splitted[4],splitted[5],splitted[6]
+                        ));
 
+                    }else{
+                        System.out.println("Erro ao importar arquivo de item");
+                    }
                 }
-            }
 
             bfread.close();
 
@@ -122,8 +124,8 @@ public class Delivery {
 
             while((line = bfread.readLine()) != null){ 
                 splitted = line.split("#");  
- 
-                if(splitted[0] == "Cliente"){ //qual o tipo de usuario
+
+                if(splitted[0].equals("Cliente")){ //qual o tipo de usuario
                     Cliente cli = new Cliente(splitted[1], splitted[2], Integer.parseInt(splitted[3]), splitted[4], splitted[5]);
                     clientes.add(cli);
                     
@@ -131,30 +133,50 @@ public class Delivery {
                     String[] codes;
                     String subLine;
 
-                    scan = new Scanner(splitted[6]);
-                    subLine = scan.nextLine();
-                    codes = subLine.split(",");
+                    if(splitted.length > 6){
+                        scan = new Scanner(splitted[6]);
+                        subLine = scan.nextLine();
+                        codes = subLine.split(",");
 
-                    for(i = 0; i < codes.length -1; i++){
-                        cli.getPedidos().add(busca(codes[i], pedidos));
+                        for(i = 0; i < codes.length -1; i++){
+                            cli.getPedidos().add(busca(codes[i], pedidos));
+                        }
                     }
 
-                }else{
+                }else if(splitted[0].equals("Restaurante")){
                     Restaurante res = new Restaurante(splitted[1], splitted[2], Integer.parseInt(splitted[3]), splitted[4], splitted[5]);
                     restaurantes.add(res);
 
-                    //readiciona pedidos
+                    //readiciona itens
                     String[] codes;
                     String subLine;
 
-                    scan = new Scanner(splitted[6]);
-                    subLine = scan.nextLine();
-                    codes = subLine.split(",");
+                    if(splitted.length > 6){ //se tem itens
+                        scan = new Scanner(splitted[6]);
+                        subLine = scan.nextLine();
+                        codes = subLine.split(",");
 
-                    for(i = 0; i < codes.length -1; i++){
-                        res.getPedidos().add(busca(codes[i], pedidos));
+                        
+                        for(i = 0; i < codes.length -1; i++){
+                            res.getListaItem().add(busca(codes[i], itens));
+                        }
                     }
 
+                    //readiciona pedidos
+                    if(splitted.length > 7){ //se tem pedidos
+                        scan = new Scanner(splitted[7]);
+                        subLine = scan.nextLine();
+                        codes = subLine.split(",");
+
+                        for(i = 0; i < codes.length -1; i++){
+                            res.getPedidos().add(busca(codes[i], pedidos));
+                        }
+                    }
+                    
+                    System.out.println("Teste " + res.getCodigo());
+
+                }else{
+                    System.out.println("Erro ao importar arquivo de usuario");
                 }
             }
 
@@ -171,6 +193,7 @@ public class Delivery {
         }catch(IOException e){
             System.out.println("Erro ao abrir arquivo " + e.getMessage());
         }
+
     }
 
 
@@ -255,41 +278,12 @@ public class Delivery {
     public void cadastraComida(String nome, float preco, int codigo, String tipo, String imgPath, int serveQ, String tamanho,
      boolean isVegetariano,boolean isGelado,boolean isSemAcucar){
         Restaurante res = (Restaurante) contaLogada;
-        BufferedWriter bfWriter = null;
-        BufferedReader bfReader = null;
-        String line;
-        String[] split;
-        boolean found = false;
         Comida comida = new Comida(nome, preco, codigo, tipo, imgPath, serveQ, tamanho, isVegetariano, isGelado, isSemAcucar);
 
         itens.add(comida);
         res.getListaItem().add(comida);
         res.addCodigoItem(codigo);
 
-        //salvar no arquivo
-        try{
-            bfWriter = new BufferedWriter(new FileWriter(itemPath,true)); //true é para append
-            
-            bfWriter.write("Produto#"+ nome + "#" + preco + "#" + codigo + "#" + tipo + "#" + imgPath + "#" +
-                                             serveQ + "#" + tamanho + "#" + isVegetariano + "#" + isGelado + "#" + isSemAcucar);
-            bfWriter.newLine(); //pula a linha atual
-            bfWriter.close();
-
-            //adiciona codigo ao res no arquivo
-            FileReader fr = new FileReader(usuarioPath);  //melhor usar uma função para salvar tudo
-            
-            bfReader = new BufferedReader(fr);
-            while((line = bfReader.readLine()) != null && !found){
-                split = line.split("#");
-                if(Integer.parseInt(split[3]) == res.getCodigo()){ //é o nosso restaurante
-                    FileWriter fw = new FileWriter(usuarioPath,true);
-
-                }   
-            }
-
-        }catch(IOException e){
-            System.out.println("Erro ao escrever arquivo" + e.getMessage());
-        }
     }
 
     /**
@@ -304,51 +298,24 @@ public class Delivery {
     public void cadastraProduto(String nome, float preco, int codigo, String tipo, String imgPath, String marca){
         Restaurante res = (Restaurante) contaLogada;
         Produto produto = new Produto(nome, preco, codigo, tipo, imgPath, marca);
-        BufferedWriter bfWriter = null;
 
         itens.add(produto);
         res.getListaItem().add(produto);
         res.addCodigoItem(codigo);
-
-        //salvar no arquivo
-        try{
-            bfWriter = new BufferedWriter(new FileWriter(itemPath,true)); //true é para append
-            
-            bfWriter.write("Produto#"+ nome + "#" + preco + "#" + codigo + "#" + tipo + "#" + imgPath + "#" + marca);
-            bfWriter.newLine(); //pula a linha atual
-            bfWriter.close();
-
-        }catch(IOException e){
-            System.out.println("Erro ao escrever arquivo" + e.getMessage());
-        }
-        
         
     }
 
     /**
      * Cadastra os dados de um Restaurante e armazena em um arquivo
-     * @param nomeUsuario
-     * @param senha
-     * @param codigo
-     * @param profileImg
-     * @param cnpj
+     * @param nomeUsuario Nome do Restaurante
+     * @param senha Senha do Restaurante
+     * @param codigo Codigo do Restaurante
+     * @param profileImg Local Imagem do Restaurante
+     * @param cnpj Cnpj do Restaurante
      */
     public void cadastraRestaurante(String nomeUsuario, String senha, int codigo, String profileImg, String cnpj){
-        BufferedWriter bfWriter = null;
+        restaurantes.add(new Restaurante(nomeUsuario, senha, codigo, cnpj,  profileImg));
 
-        restaurantes.add(new Restaurante(nomeUsuario, senha, codigo, profileImg, cnpj));
-
-        //adiciona no arquivo
-        try{
-            bfWriter = new BufferedWriter(new FileWriter(usuarioPath,true)); //true é para append
-            
-            bfWriter.write("Produto#"+ nomeUsuario + "#" + senha + "#" + codigo + "#" + cnpj + "#" + profileImg);
-            bfWriter.newLine(); //pula a linha atual
-            bfWriter.close();
-
-        }catch(IOException e){
-            System.out.println("Erro ao escrever arquivo" + e.getMessage());
-        }
     }
 
     /**
@@ -359,26 +326,16 @@ public class Delivery {
      * @param documento Documento do cliente
      * @param profileImg Local da Imagem do cliente
      */
-    public void cadastraCliente(String nomeUsuario, String senha, int codigo, String cpf, String profileImg){
-        BufferedWriter bfWriter = null;
+    public void cadastraCliente(String nomeUsuario, String senha, int codigo, String cpf, String profileImg){    
+        clientes.add(new Cliente(nomeUsuario, senha, codigo, cpf, profileImg));
 
-        try{
-            bfWriter = new BufferedWriter(new FileWriter(usuarioPath,true)); //true é para append
-            
-            bfWriter.write("Produto#"+ nomeUsuario + "#" + senha + "#" + codigo + "#" + cpf + "#" + profileImg);
-            bfWriter.newLine(); //pula a linha atual
-            bfWriter.close();
-
-        }catch(IOException e){
-            System.out.println("Erro ao escrever arquivo" + e.getMessage());
-        }     
     }
 
     /**
      * Funçao que reazliza o pedido e salva ele depois
-     * @param numeroPedido
-     * @param restaurante
-     * @param dataPedido
+     * @param numeroPedido Numero do Pedido
+     * @param restaurante Restaurante de onde vem o pedido
+     * @param dataPedido Data do pedido
      */
     public void realizaPedido(int numeroPedido, String restaurante, String dataPedido){
         Cliente cli = (Cliente) contaLogada; //retorna á especialização
@@ -445,6 +402,106 @@ public class Delivery {
      * Salvara todos os dados nos arquivos
      */
     public void fechaPrograma(){
+        BufferedWriter bfWriter;
+        int i, j;
+        Item item;
+        Pedido pedido;
+        Cliente cli;
+        Restaurante res;
+        
+        //salva items
+        for(i = 0; i < itens.size()-1; i++){
+                item = itens.get(i);
+            try{
+                bfWriter = new BufferedWriter(new FileWriter(itemPath));
+                
+                if(item instanceof Comida){
+                    Comida comida = (Comida) item;
 
+                    bfWriter.write("Comida#"+ comida.getNome() + "#" + comida.getPreco() + "#" + comida.getCodigo() + "#" + comida.getTipo() + "#" + comida.getImgPath() + "#" +
+                                    comida.getServeQuantos() + "#" + comida.getTamanho() + "#" + comida.getVegetariano() + "#" + comida.getGelado() + "#" + comida.getSemAcucar());
+                    bfWriter.newLine(); //pula a linha atual
+                }else{
+                    Produto prod = (Produto) item;
+
+                    bfWriter.write("Produto#"+ prod.getNome() + "#" + prod.getPreco() + "#" + prod.getCodigo() + "#" + prod.getTipo() + "#" + prod.getImgPath() + "#" + prod.getMarca());
+                    bfWriter.newLine(); //pula a linha atual
+                }
+
+                bfWriter.close();
+
+            }catch(IOException e){
+                System.out.println("Erro ao escrever arquivo" + e.getMessage());
+            }
+        }
+
+        //salva clientes
+        for(i = 0; i < clientes.size(); i++){
+            cli = clientes.get(i);
+
+            try{
+                bfWriter = new BufferedWriter(new FileWriter(usuarioPath));
+                
+                bfWriter.write("Cliente#" +cli.getNome() + "#" + cli.getSenha() + "#" + cli.getCodigo() + "#" + cli.getDocumento() + "#" + cli.getProfilePath() + "#");
+                
+                for(j = 0; j < cli.getPedidos().size()-1; i++){
+                    bfWriter.write(cli.getPedidos().get(i).getCodigo() + ","); //escreve os codigos dos itens
+                }
+
+                bfWriter.newLine(); //pula a linha atual
+                bfWriter.close();
+    
+            }catch(IOException e){
+                System.out.println("Erro ao escrever arquivo" + e.getMessage());
+            }   
+        }
+
+
+        //salva restaurantes
+        for(i = 0; i < restaurantes.size()-1; i++){
+            res = restaurantes.get(i);
+
+            try{
+                bfWriter = new BufferedWriter(new FileWriter(usuarioPath));
+                
+                bfWriter.write("Restaurante#" + res.getNome()+ "#" + res.getSenha() + "#" + res.getCodigo() + "#" + res.getDocumento() + "#" + res.getProfilePath() + "#");
+
+                for(j = 0; j < res.getListaItem().size()-1; i++){
+                    bfWriter.write(res.getListaItem().get(i).getCodigo() + ","); //escreve os codigos dos itens
+                }
+                bfWriter.write("#");
+
+                for(j = 0; j < res.getPedidos().size()-1; i++){
+                    bfWriter.write(res.getPedidos().get(i).getCodigo() + ","); //escreve os codigos dos itens
+                }
+
+                bfWriter.newLine(); //pula a linha atual
+                bfWriter.close();
+
+            }catch(IOException e){
+                System.out.println("Erro ao escrever arquivo" + e.getMessage());
+            }
+        }  
+
+        //salva pedidos
+        for(i = 0; i < pedidos.size()-1; i++){
+            pedido = pedidos.get(i);
+            
+            try{
+                bfWriter = new BufferedWriter(new FileWriter(pedidosPath));
+                
+                bfWriter.write(pedido.getCodigo()+ "#" + pedido.getRestaurante() + "#" + pedido.getCliente() + "#" + pedido.getDataPedido() + "#");
+
+                for(j = 0; j < pedido.getListaItem().size()-1; i++){
+                    bfWriter.write(pedido.getListaItem().get(i).getCodigo() + ","); //escreve os codigos dos itens
+                }
+                
+                bfWriter.newLine(); //pula a linha atual
+                bfWriter.close();
+
+            }catch(IOException e){
+                System.out.println("Erro ao escrever arquivo" + e.getMessage());
+            }
+        }  
     }
 }

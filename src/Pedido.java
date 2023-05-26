@@ -95,6 +95,14 @@ public class Pedido extends Pesquisavel{
     }
 
     /**
+     * Função que retorna a lista de itens do pedido
+     * @return Lista de itens
+     */
+    public List<Item> getListaItem(){
+        return itens;
+    }
+
+    /**
      * Substitui uma lista na variavel da lista de itens
      * @param listaItem Lista de itens
      */

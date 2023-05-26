@@ -1,5 +1,13 @@
 
+Item:
 Tipo_Dado#dado#dado2#dado3#dado4
+
+Pedido:
+dado1#dado2# ... #codigoItemPedido,codigoItemPedido
+
+Usuario:
+Tipo_dado#dado .... #codigoItem,codigoItem#codigoPedido,codigoPedido
+                        //item so em restaurante
 
 Primeiro valor é o tipo
 O resto são os atributos
