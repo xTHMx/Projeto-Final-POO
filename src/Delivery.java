@@ -91,8 +91,8 @@ public class Delivery {
                 subLine = scan.nextLine();
                 codes = subLine.split(",");
 
-                for(i = 0; i < codes.length -1; i++){
-                    pedidosItens.add(busca(codes[i], itens));
+                for(i = 0; i < codes.length-1; i++){
+                    pedidosItens.add(busca(Integer.parseInt(codes[i]), itens));
                 }
 
                 pedidoTemp = new Pedido(Integer.parseInt(splitted[0]),splitted[1],splitted[2],splitted[3]);
@@ -228,7 +228,7 @@ public class Delivery {
     public <T extends Pesquisavel> T busca(int chave, List<T> lista){
         int i = 0;
 
-        while(chave != lista.get(i).getCodigo() && i < lista.size())
+        while(chave != lista.get(i).getCodigo() && i < lista.size()-1)
             i++;
 
         if(chave == lista.get(i).getCodigo()){

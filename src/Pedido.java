@@ -15,6 +15,13 @@ public class Pedido extends Pesquisavel{
     private String cliente;
     private Date dataPedido;
 
+    /**
+     * Cria uma instancia da classe Pedido
+     * @param numeroPedido Numero do Pedido
+     * @param restaurante Restaurante do Pedido
+     * @param cliente Cliente do Pedido
+     * @param dataPedido Data do Pedido
+     */
     public Pedido(int numeroPedido, String restaurante, String cliente, String dataPedido){
         this.numeroPedido = numeroPedido;
         this.restaurante = restaurante;
